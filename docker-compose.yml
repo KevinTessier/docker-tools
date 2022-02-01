@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+
+# PROXY
+  traefik:
+    image: "traefik:v2.5"
+    container_name: "traefik"
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "3000:3000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - network_tools
+
+# MAILBOX
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+    networks:
+      - network_tools
+
+networks:
+  network_tools:
+    name: "network_app"
