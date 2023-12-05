@@ -1,10 +1,10 @@
-version: "3.9"
+version: "3.8"
 
 services:
 
 # PROXY
   traefik:
-    image: "traefik:v2.5"
+    image: "traefik:v3.0"
     container_name: "traefik"
     command:
       - "--log.level=DEBUG"
@@ -14,8 +14,9 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
-      - "8080:8080"
-      - "3000:3000"
+      - "443:443"
+    labels:
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
@@ -24,10 +25,20 @@ services:
 # MAILBOX
   mailhog:
     container_name: mailhog
-    image: mailhog/mailhog:v1.0.1
+    image: mailhog/mailhog
     ports:
       - 1025:1025 # smtp server
       - 8025:8025 # web ui
+    networks:
+      - network_tools
+
+  whoami:
+    image: "containous/whoami"
+    container_name: "whoami"
+    command:
+      - "--port=32000"
+    labels:
+      - "traefik.enable=true"
     networks:
       - network_tools
 
